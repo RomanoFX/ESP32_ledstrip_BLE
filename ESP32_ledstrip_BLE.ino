@@ -20,24 +20,6 @@ uint8_t blue = 0;
 
 int j = 0;
 
-#define NUM_NETWORKS 4
-
-// Add your networks credentials here
-const char* ssidTab[NUM_NETWORKS] = {
-  "Livebox-A1F0",
-  "wifi-network-2",
-  "wifi-network-3",
-  "wifi-network-4"
-};
-const char* passwordTab[NUM_NETWORKS] = {
-  "CzksV3G5QbWntf2jKF",
-  "wifi-pass-2",
-  "wifi-pass-3",
-  "wifi-pass-4"
-};
-
-HusarnetServer server(8000);
-
 String header;
 
 // See the following for generating UUIDs:
@@ -111,47 +93,22 @@ void initBLEServer() {
   Serial.println("Characteristic defined! Now you can read it in your phone!");
 }
 
+int threshold = 40;
+bool touch1detected = false;
+bool touch2detected = false;
+
+void gotTouch1(){
+ touch1detected = true;
+}
+
 void setup() {
   Serial.begin(115200);
+  touchAttachInterrupt(T0, gotTouch1, threshold);
   initBLEServer();
   strip.Begin();
   strip.Show();
 
   bool connectedSuccess = 0;
-//  for (int i = 0; i < NUM_NETWORKS; i++) {
-//    Serial.print("Connecting to ");
-//    Serial.println(ssidTab[i]);
-//    WiFi.begin(ssidTab[i], passwordTab[i]);
-//    for (int j = 0; j < 10; j++) {
-//      if (WiFi.status() != WL_CONNECTED) {
-//        delay(500);
-//        Serial.print(".");
-//      } else {
-//        connectedSuccess = true;
-//      }
-//    }
-//    Serial.println("");
-//    if (connectedSuccess == true) {
-//      break;
-//    }
-//  }
-//  if (connectedSuccess == false) {
-//    Serial.println("WiFi network unreachable");
-//    while (1) {
-//      ;
-//    }
-//  }
-
-  Serial.println("");
-  Serial.println("WiFi connected.");
-  Serial.println("IP address: ");
-  //Serial.println(WiFi.localIP());
-
-  //Husarnet.selfHostedSetup("default");
-  // Husarnet.join(husarnetJoinCode, hostName); // alternative way, to clicking a link from a terminal. Visit app.husarnet.com -> network -> add element -> join code tab.
-  //Husarnet.start();
-
-  //server.begin();
 
   xTaskCreate(
     taskLED,          /* Task function. */
@@ -339,107 +296,11 @@ void taskLED( void * parameter )
 
 void loop() {
   while (1) {
+    if(touch1detected){
+    touch1detected = false;
+    Serial.println("Touch 1 detected");
+    
+  }
     delay(1000);
   }
 }
-
-//static const char* htmlHead = R"rawText(
-//<head>
-//<meta name="viewport" content="width=device-width, initial-scale=1">
-//<link rel="icon" href="data:,">
-//<style>
-//html { 
-//font-family: Helvetica; 
-//display: inline-block; 
-//margin: 0px auto; 
-//text-align: center;
-//}
-//
-//.button { 
-//background: 
-//linear-gradient(to right, #FB6060 0%, #EC305D 100%);
-//border: none;
-//text-decoration: none;
-//margin: 2px;   
-//padding: 25px 25px; 
-//width: 300px; 
-//border-radius: 12px; 
-//color: white;
-//font-size: 30px; 
-//cursor: pointer;
-//}
-//</style>
-//</head>   
-//)rawText";
-  
-//void taskWifi( void * parameter ) {
-//
-//
-//  
-//  while (1) {
-//    HusarnetClient client = server.available();
-//
-//    if (client) {
-//      Serial.println("New Client.");
-//      String currentLine = "";
-//      Serial.printf("connected: %d\n", (int)client.connected());
-//      while (client.connected()) {
-//
-//        if (client.available()) {
-//          char c = client.read();
-//          //          Serial.write(c);
-//          header += c;
-//          if (c == '\n') {
-//            if (currentLine.length() == 0) {
-//              client.println("HTTP/1.1 200 OK");
-//              client.println("Content-type:text/html");
-//              client.println("Connection: close");
-//              client.println();
-//
-//              if (header.indexOf("GET /0") >= 0) {
-//                modeRGB = 1;
-//              }
-//              if (header.indexOf("GET /1") >= 0) {
-//                modeRGB = 2;
-//              }
-//              if (header.indexOf("GET /2") >= 0) {
-//                modeRGB = 3;
-//              }
-//              if (header.indexOf("GET /3") >= 0) {
-//                modeRGB = 4;
-//              }
-//              if (header.indexOf("GET /4") >= 0) {
-//                modeRGB = 0;
-//              }
-//
-//              // Head
-//              client.println("<!DOCTYPE html><html>");
-//              client.println(htmlHead);
-//              // Body
-//              client.println("<body><h1>ESP32 Web RGB strip control</h1>");
-//              client.print("<p><a href=\"/");
-//              client.print(modeRGB);
-//              client.print("\"><button class=\"button\">");
-//              client.print(getModeName(modeRGB));
-//              client.println("</button></a></p>");
-//              client.println("</body></html>");
-//
-//              client.println();
-//              break;
-//            } else {
-//              currentLine = "";
-//            }
-//          } else if (c != '\r') {
-//            currentLine += c;
-//          }
-//        }
-//      }
-//
-//      header = "";
-//
-//      client.stop();
-//      Serial.println("Client disconnected.");
-//      Serial.println("");
-//    }
-//  }
-//}
